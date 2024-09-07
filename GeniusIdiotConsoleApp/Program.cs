@@ -59,7 +59,6 @@ internal class Program
             }
             else if (userInput == 'n')
             {
-                Console.Clear();
                 Console.Write("Спасибо за участие!");
                 return false;
             }
