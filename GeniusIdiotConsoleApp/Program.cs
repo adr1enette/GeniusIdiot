@@ -18,7 +18,7 @@ internal class Program
             int[] answers = GetAnswers(indexArray);
             string[] diagnoses = GetDiagnoses();
 
-            int validAnswersCount = 0;
+            int validAnswerCount = 0;
             for (int i = 0; i < questionCount; i++)
             {
                 Console.Clear();
@@ -36,13 +36,13 @@ internal class Program
                 int validAnswer = answers[i];
                 if (userAnswer == validAnswer)
                 {
-                    validAnswersCount++;
+                    validAnswerCount++;
                 }
             }
 
             Console.Clear();
-            Console.WriteLine($"Количество правильных ответов: {validAnswersCount}");
-            Console.WriteLine($"Вы, {userName}, {diagnoses[validAnswersCount]} какой-то");
+            Console.WriteLine($"Количество правильных ответов: {validAnswerCount}");
+            Console.WriteLine($"Вы, {userName}, {diagnoses[validAnswerCount]} какой-то");
         } while (AskPlayAgain());
     }
 
