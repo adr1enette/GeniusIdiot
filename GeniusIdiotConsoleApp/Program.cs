@@ -13,6 +13,10 @@ internal class Program
         int[] answers = GetAnswers(indexArray);
         string[] diagnoses = GetDiagnoses();
 
+        Console.Clear();
+        Console.WriteLine("Как вас зовут?");
+        string userName = Console.ReadLine().Trim();
+        
         int validAnswersCount = 0;
         for (int i = 0; i < questionCount; i++)
         {
@@ -36,8 +40,8 @@ internal class Program
         }
 
         Console.Clear();
-        Console.WriteLine("Количество правильных ответов: " + validAnswersCount);
-        Console.WriteLine("Ваш диагноз: " + diagnoses[validAnswersCount]);
+        Console.WriteLine($"Количество правильных ответов: {validAnswersCount}");
+        Console.WriteLine($"Вы, {userName}, {diagnoses[validAnswersCount]} какой-то");
     }
 
     private static string[] GetDiagnoses()
