@@ -7,41 +7,68 @@ internal class Program
     private static void Main(string[] args)
     {
         const int questionCount = 5;
-        int[] indexArray = GenerateShuffledIndexArray(questionCount);
-
-        string[] questions = GetQuestions(indexArray);
-        int[] answers = GetAnswers(indexArray);
-        string[] diagnoses = GetDiagnoses();
 
         Console.Clear();
         Console.WriteLine("Как вас зовут?");
         string userName = Console.ReadLine().Trim();
-        
-        int validAnswersCount = 0;
-        for (int i = 0; i < questionCount; i++)
+        do
         {
-            Console.Clear();
-            Console.WriteLine($"Вопрос №{i + 1}");
-            Console.WriteLine(questions[i]);
+            int[] indexArray = GenerateShuffledIndexArray(questionCount);
+            string[] questions = GetQuestions(indexArray);
+            int[] answers = GetAnswers(indexArray);
+            string[] diagnoses = GetDiagnoses();
 
-            int userAnswer;
-            while (!int.TryParse(Console.ReadLine().Trim(), out userAnswer))
+            int validAnswersCount = 0;
+            for (int i = 0; i < questionCount; i++)
             {
                 Console.Clear();
                 Console.WriteLine($"Вопрос №{i + 1}");
-                Console.WriteLine($"{questions[i]} (Пожалуйста, вводите только числа)");
+                Console.WriteLine(questions[i]);
+
+                int userAnswer;
+                while (!int.TryParse(Console.ReadLine().Trim(), out userAnswer))
+                {
+                    Console.Clear();
+                    Console.WriteLine($"Вопрос №{i + 1}");
+                    Console.WriteLine($"{questions[i]} (Пожалуйста, вводите только числа)");
+                }
+
+                int validAnswer = answers[i];
+                if (userAnswer == validAnswer)
+                {
+                    validAnswersCount++;
+                }
             }
 
-            int validAnswer = answers[i];
-            if (userAnswer == validAnswer)
+            Console.Clear();
+            Console.WriteLine($"Количество правильных ответов: {validAnswersCount}");
+            Console.WriteLine($"Вы, {userName}, {diagnoses[validAnswersCount]} какой-то");
+        } while (AskPlayAgain());
+    }
+
+    private static bool AskPlayAgain()
+    {
+        while (true)
+        {
+            Console.WriteLine("Сыграем еще? (y/n)");
+            char userInput = char.ToLower(Console.ReadKey(true).KeyChar);
+
+            if (userInput == 'y')
             {
-                validAnswersCount++;
+                return true;
+            }
+            else if (userInput == 'n')
+            {
+                Console.Clear();
+                Console.Write("Спасибо за участие!");
+                return false;
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Нажмите 'y' чтобы играть, 'n' чтобы выйти");
             }
         }
-
-        Console.Clear();
-        Console.WriteLine($"Количество правильных ответов: {validAnswersCount}");
-        Console.WriteLine($"Вы, {userName}, {diagnoses[validAnswersCount]} какой-то");
     }
 
     private static string[] GetDiagnoses()
