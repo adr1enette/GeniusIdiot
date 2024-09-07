@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GeniusIdiotConsoleApp;
 
@@ -6,44 +7,87 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        const int questionCount = 5;
-
-        Console.Clear();
-        Console.WriteLine("Как вас зовут?");
-        string userName = Console.ReadLine().Trim();
+        string userName = AskUserName();
         do
         {
-            int[] indexArray = GenerateShuffledIndexArray(questionCount);
-            string[] questions = GetQuestions(indexArray);
-            int[] answers = GetAnswers(indexArray);
-            string[] diagnoses = GetDiagnoses();
+            var questions = GetQuestionList();
+            var answers = GetAnswerList();
+            int questionCount = questions.Count;
 
-            int validAnswerCount = 0;
-            for (int i = 0; i < questionCount; i++)
-            {
-                Console.Clear();
-                Console.WriteLine($"Вопрос №{i + 1}");
-                Console.WriteLine(questions[i]);
-
-                int userAnswer;
-                while (!int.TryParse(Console.ReadLine().Trim(), out userAnswer))
-                {
-                    Console.Clear();
-                    Console.WriteLine($"Вопрос №{i + 1}");
-                    Console.WriteLine($"{questions[i]} (Пожалуйста, вводите только числа)");
-                }
-
-                int validAnswer = answers[i];
-                if (userAnswer == validAnswer)
-                {
-                    validAnswerCount++;
-                }
-            }
-
-            Console.Clear();
-            Console.WriteLine($"Количество правильных ответов: {validAnswerCount}");
-            Console.WriteLine($"Вы, {userName}, {diagnoses[validAnswerCount]} какой-то");
+            int correctAnswerCount = RunQuiz(questions, answers, questionCount);
+            string diagnosis = DetermineDiagnosis(correctAnswerCount, questionCount);
+            DisplayResults(correctAnswerCount, userName, diagnosis);
         } while (AskPlayAgain());
+    }
+
+    private static void DisplayResults(int correctAnswerCount, string userName, string diagnosis)
+    {
+        Console.Clear();
+        Console.WriteLine($"Количество правильных ответов: {correctAnswerCount}");
+        Console.WriteLine($"{userName}, ваш диагноз: {diagnosis}");
+    }
+
+    private static int RunQuiz(List<string> questions, List<int> answers, int questionCount)
+    {
+        var random = new Random();
+        int correctAnswerCount = 0;
+        for (int i = 0; i < questionCount; i++)
+        {
+            int index = random.Next(questions.Count);
+            string question = GetAndRemoveElement(questions, index);
+            int validAnswer = GetAndRemoveElement(answers, index);
+            int questionNumber = i + 1;
+
+            AskQuestion(questionNumber, question);
+            int userAnswer = GetUserAnswer(question, questionNumber);
+            if (userAnswer == validAnswer)
+            {
+                correctAnswerCount++;
+            }
+        }
+
+        return correctAnswerCount;
+    }
+
+    private static int GetUserAnswer(string question, int questionNumber)
+    {
+        int userAnswer;
+        while (!int.TryParse(Console.ReadLine().Trim(), out userAnswer))
+        {
+            AskQuestion(questionNumber, $"{question} (Пожалуйста, вводите только числа)");
+        }
+
+        return userAnswer;
+    }
+
+    private static void AskQuestion(int questionNumber, string question)
+    {
+        Console.Clear();
+        Console.WriteLine($"Вопрос №{questionNumber}");
+        Console.WriteLine(question);
+    }
+
+    private static T GetAndRemoveElement<T>(List<T> list, int index)
+    {
+        var randomElement = list[index];
+        list.RemoveAt(index);
+
+        return randomElement;
+    }
+
+    private static string DetermineDiagnosis(int correcAnswerCount, int questionCount)
+    {
+        double percentage = (double)correcAnswerCount / questionCount * 100;
+
+        return percentage switch
+        {
+            100 => "гений",
+            >= 76 => "талант",
+            >= 51 => "нормальный",
+            >= 26 => "дурак",
+            >= 1 => "идиот",
+            _ => "кретин"
+        };
     }
 
     private static bool AskPlayAgain()
@@ -70,69 +114,28 @@ internal class Program
         }
     }
 
-    private static string[] GetDiagnoses()
+    private static string AskUserName()
     {
-        string[] diagnoses = new string[6];
-        diagnoses[0] = "кретин";
-        diagnoses[1] = "идиот";
-        diagnoses[2] = "дурак";
-        diagnoses[3] = "нормальный";
-        diagnoses[4] = "талант";
-        diagnoses[5] = "гений";
+        Console.Clear();
+        Console.WriteLine("Как вас зовут?");
 
-        return diagnoses;
+        return Console.ReadLine().Trim();
     }
 
-    private static T[] GetShuffledArray<T>(T[] array, int[] indexArray)
+    private static List<int> GetAnswerList()
     {
-        var shuffledArray = new T[indexArray.Length];
-        for (int i = 0; i < indexArray.Length; i++)
+        return new List<int> { 6, 9, 25, 60, 2 };
+    }
+
+    private static List<string> GetQuestionList()
+    {
+        return new List<string>
         {
-            shuffledArray[i] = array[indexArray[i]];
-        }
-
-        return shuffledArray;
-    }
-
-    private static int[] GetAnswers(int[] indexArray)
-    {
-        int[] answers = new int[indexArray.Length];
-        answers[0] = 6;
-        answers[1] = 9;
-        answers[2] = 25;
-        answers[3] = 60;
-        answers[4] = 2;
-
-        return GetShuffledArray(answers, indexArray);
-    }
-
-    private static string[] GetQuestions(int[] indexArray)
-    {
-        string[] questions = new string[indexArray.Length];
-        questions[0] = "Сколько будет два плюс два умноженное на два?";
-        questions[1] = "Бревно нужно распилить на 10 частей. Сколько распилов нужно сделать?";
-        questions[2] = "На двух руках 10 пальцев. Сколько пальцев на 5 руках?";
-        questions[3] = "Укол делают каждые полчаса. Сколько нужно минут, чтобы сделать три укола?";
-        questions[4] = "Пять свечей горело, две потухли. Сколько свечей осталось?";
-
-        return GetShuffledArray(questions, indexArray);
-    }
-
-    private static int[] GenerateShuffledIndexArray(int questionCount)
-    {
-        int[] array = new int[questionCount];
-        for (int i = 0; i < questionCount; i++)
-        {
-            array[i] = i;
-        }
-
-        var random = new Random();
-        for (int i = array.Length - 1; i > 0; i--)
-        {
-            int j = random.Next(i + 1);
-            (array[i], array[j]) = (array[j], array[i]);
-        }
-
-        return array;
+            "Сколько будет два плюс два умноженное на два?",
+            "Бревно нужно распилить на 10 частей. Сколько распилов нужно сделать?",
+            "На двух руках 10 пальцев. Сколько пальцев на 5 руках?",
+            "Укол делают каждые полчаса. Сколько нужно минут, чтобы сделать три укола?",
+            "Пять свечей горело, две потухли. Сколько свечей осталось?"
+        };
     }
 }
