@@ -33,13 +33,13 @@ internal class Program
         int correctAnswerCount = 0;
         for (int i = 0; i < questionCount; i++)
         {
+            int questionNumber = i + 1;
             int index = random.Next(questions.Count);
             string question = GetAndRemoveElement(questions, index);
             int validAnswer = GetAndRemoveElement(answers, index);
-            int questionNumber = i + 1;
 
             AskQuestion(questionNumber, question);
-            int userAnswer = GetUserAnswer(question, questionNumber);
+            int userAnswer = GetUserAnswer(questionNumber, question);
             if (userAnswer == validAnswer)
             {
                 correctAnswerCount++;
@@ -49,7 +49,7 @@ internal class Program
         return correctAnswerCount;
     }
 
-    private static int GetUserAnswer(string question, int questionNumber)
+    private static int GetUserAnswer(int questionNumber, string question)
     {
         int userAnswer;
         while (!int.TryParse(Console.ReadLine().Trim(), out userAnswer))
