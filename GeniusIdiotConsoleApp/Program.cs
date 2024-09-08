@@ -36,11 +36,11 @@ internal class Program
             int questionNumber = i + 1;
             int index = random.Next(questions.Count);
             string question = GetAndRemoveElement(questions, index);
-            int validAnswer = GetAndRemoveElement(answers, index);
+            int correctAnswer = GetAndRemoveElement(answers, index);
 
             AskQuestion(questionNumber, question);
             int userAnswer = GetUserAnswer(questionNumber, question);
-            if (userAnswer == validAnswer)
+            if (userAnswer == correctAnswer)
             {
                 correctAnswerCount++;
             }
