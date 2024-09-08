@@ -38,6 +38,7 @@ internal class Program
             string question = GetAndRemoveElement(questions, index);
             int correctAnswer = GetAndRemoveElement(answers, index);
 
+            AskQuestion(questionNumber, question);
             int userAnswer = GetUserAnswer(questionNumber, question);
             if (userAnswer == correctAnswer)
             {
@@ -51,14 +52,19 @@ internal class Program
     private static int GetUserAnswer(int questionNumber, string question)
     {
         int userAnswer;
-        do
+        while (!int.TryParse(Console.ReadLine().Trim(), out userAnswer))
         {
-            Console.Clear();
-            Console.WriteLine($"Вопрос №{questionNumber}");
-            Console.WriteLine(question);
-        } while (!int.TryParse(Console.ReadLine()?.Trim(), out userAnswer));
+            AskQuestion(questionNumber, $"{question} (Пожалуйста, вводите только числа)");
+        }
 
         return userAnswer;
+    }
+
+    private static void AskQuestion(int questionNumber, string question)
+    {
+        Console.Clear();
+        Console.WriteLine($"Вопрос №{questionNumber}");
+        Console.WriteLine(question);
     }
 
     private static T GetAndRemoveElement<T>(List<T> list, int index)
@@ -100,15 +106,10 @@ internal class Program
 
     private static string AskUserName()
     {
-        string input;
-        do
-        {
-            Console.Clear();
-            Console.WriteLine("Как вас зовут?");
-            input = Console.ReadLine()?.Trim();
-        } while (string.IsNullOrWhiteSpace(input));
+        Console.Clear();
+        Console.WriteLine("Как вас зовут?");
 
-        return input;
+        return Console.ReadLine().Trim();
     }
 
     private static List<int> GetAnswerList()
