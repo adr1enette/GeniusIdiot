@@ -14,7 +14,7 @@ internal class Program
             var answers = GetAnswerList();
             int questionCount = questions.Count;
 
-            int correctAnswerCount = RunQuiz(questions, answers, questionCount);
+            int correctAnswerCount = ExecuteQuizRound(questions, answers, questionCount);
             string diagnosis = DetermineDiagnosis(correctAnswerCount, questionCount);
             DisplayResults(correctAnswerCount, userName, diagnosis);
         } while (AskPlayAgain());
@@ -27,7 +27,7 @@ internal class Program
         Console.WriteLine($"{userName}, ваш диагноз: {diagnosis}");
     }
 
-    private static int RunQuiz(List<string> questions, List<int> answers, int questionCount)
+    private static int ExecuteQuizRound(List<string> questions, List<int> answers, int questionCount)
     {
         var random = new Random();
         int correctAnswerCount = 0;
@@ -38,7 +38,6 @@ internal class Program
             string question = GetAndRemoveElement(questions, index);
             int correctAnswer = GetAndRemoveElement(answers, index);
 
-            AskQuestion(questionNumber, question);
             int userAnswer = GetUserAnswer(questionNumber, question);
             if (userAnswer == correctAnswer)
             {
@@ -52,19 +51,14 @@ internal class Program
     private static int GetUserAnswer(int questionNumber, string question)
     {
         int userAnswer;
-        while (!int.TryParse(Console.ReadLine().Trim(), out userAnswer))
+        do
         {
-            AskQuestion(questionNumber, $"{question} (Пожалуйста, вводите только числа)");
-        }
+            Console.Clear();
+            Console.WriteLine($"Вопрос №{questionNumber}");
+            Console.WriteLine(question);
+        } while (!int.TryParse(Console.ReadLine()?.Trim(), out userAnswer));
 
         return userAnswer;
-    }
-
-    private static void AskQuestion(int questionNumber, string question)
-    {
-        Console.Clear();
-        Console.WriteLine($"Вопрос №{questionNumber}");
-        Console.WriteLine(question);
     }
 
     private static T GetAndRemoveElement<T>(List<T> list, int index)
@@ -106,10 +100,15 @@ internal class Program
 
     private static string AskUserName()
     {
-        Console.Clear();
-        Console.WriteLine("Как вас зовут?");
+        string input;
+        do
+        {
+            Console.Clear();
+            Console.WriteLine("Как вас зовут?");
+            input = Console.ReadLine()?.Trim();
+        } while (string.IsNullOrWhiteSpace(input));
 
-        return Console.ReadLine().Trim();
+        return input;
     }
 
     private static List<int> GetAnswerList()
