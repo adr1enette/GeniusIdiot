@@ -69,10 +69,10 @@ internal class Program
 
     private static T GetAndRemoveElement<T>(List<T> list, int index)
     {
-        var randomElement = list[index];
+        var element = list[index];
         list.RemoveAt(index);
 
-        return randomElement;
+        return element;
     }
 
     private static string DetermineDiagnosis(int correctAnswerCount, int questionCount)
