@@ -75,9 +75,9 @@ internal class Program
         return randomElement;
     }
 
-    private static string DetermineDiagnosis(int correcAnswerCount, int questionCount)
+    private static string DetermineDiagnosis(int correctAnswerCount, int questionCount)
     {
-        double percentage = (double)correcAnswerCount / questionCount * 100;
+        double percentage = (double)correctAnswerCount / questionCount * 100;
 
         return percentage switch
         {
