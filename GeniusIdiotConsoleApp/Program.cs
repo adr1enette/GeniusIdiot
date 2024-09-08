@@ -95,22 +95,12 @@ internal class Program
         while (true)
         {
             Console.WriteLine("Сыграем еще? (y/n)");
-            char userInput = char.ToLower(Console.ReadKey(true).KeyChar);
+            char input = char.ToLower(Console.ReadKey(true).KeyChar);
+            if (input == 'y') return true;
+            if (input == 'n') return false;
 
-            if (userInput == 'y')
-            {
-                return true;
-            }
-            else if (userInput == 'n')
-            {
-                Console.WriteLine("Спасибо за участие!");
-                return false;
-            }
-            else
-            {
-                Console.Clear();
-                Console.WriteLine("Нажмите 'y' чтобы играть, 'n' чтобы выйти");
-            }
+            Console.Clear();
+            Console.WriteLine("Нажмите 'y' чтобы играть, 'n' чтобы выйти");
         }
     }
 
