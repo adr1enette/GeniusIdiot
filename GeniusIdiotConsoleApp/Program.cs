@@ -103,7 +103,7 @@ internal class Program
             }
             else if (userInput == 'n')
             {
-                Console.Write("Спасибо за участие!");
+                Console.WriteLine("Спасибо за участие!");
                 return false;
             }
             else
