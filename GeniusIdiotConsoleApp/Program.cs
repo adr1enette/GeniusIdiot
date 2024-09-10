@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace GeniusIdiotConsoleApp;
 
@@ -7,75 +8,44 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        string userName = AskUserName();
+        string userName = GetUserName();
         do
         {
-            var questions = GetQuestionList();
-            var answers = GetAnswerList();
-            int questionCount = questions.Count;
-
-            int correctAnswerCount = ExecuteQuizRound(questions, answers, questionCount);
-            string diagnosis = DetermineDiagnosis(correctAnswerCount, questionCount);
-            DisplayResults(correctAnswerCount, userName, diagnosis);
-        } while (AskPlayAgain());
+            ExecuteQuiz(userName);
+        } while (ShouldPlayAgain());
     }
 
-    private static void DisplayResults(int correctAnswerCount, string userName, string diagnosis)
+    private static void ExecuteQuiz(string userName)
     {
-        Console.Clear();
-        Console.WriteLine($"Количество правильных ответов: {correctAnswerCount}");
-        Console.WriteLine($"{userName}, ваш диагноз: {diagnosis}");
-    }
+        var quizData = GetQuizData();
+        Random.Shared.Shuffle(CollectionsMarshal.AsSpan(quizData));
+        int questionCount = quizData.Count;
 
-    private static int ExecuteQuizRound(List<string> questions, List<int> answers, int questionCount)
-    {
-        var random = new Random();
         int correctAnswerCount = 0;
         for (int i = 0; i < questionCount; i++)
         {
-            int questionNumber = i + 1;
-            int index = random.Next(questions.Count);
-            string question = GetAndRemoveElement(questions, index);
-            int correctAnswer = GetAndRemoveElement(answers, index);
+            var (question, answer) = GetNextQuestion(ref quizData);
 
-            AskQuestion(questionNumber, question);
-            int userAnswer = GetUserAnswer(questionNumber, question);
-            if (userAnswer == correctAnswer)
+            int userAnswer = GetUserAnswer(i + 1, question);
+            if (userAnswer == answer)
             {
                 correctAnswerCount++;
             }
         }
 
-        return correctAnswerCount;
+        DisplayResults(correctAnswerCount, questionCount, userName);
     }
 
-    private static int GetUserAnswer(int questionNumber, string question)
+    private static void DisplayResults(int correctAnswerCount, int questionCount, string userName)
     {
-        int userAnswer;
-        while (!int.TryParse(Console.ReadLine().Trim(), out userAnswer))
-        {
-            AskQuestion(questionNumber, $"{question} (Пожалуйста, вводите только числа)");
-        }
+        string diagnosis = GetDiagnosis(correctAnswerCount, questionCount);
 
-        return userAnswer;
-    }
-
-    private static void AskQuestion(int questionNumber, string question)
-    {
         Console.Clear();
-        Console.WriteLine($"Вопрос №{questionNumber}");
-        Console.WriteLine(question);
+        Console.WriteLine($"Количество правильных ответов: {correctAnswerCount}");
+        Console.WriteLine($"{userName}, ваш диагноз: {diagnosis}");
     }
 
-    private static T GetAndRemoveElement<T>(List<T> list, int index)
-    {
-        var element = list[index];
-        list.RemoveAt(index);
-
-        return element;
-    }
-
-    private static string DetermineDiagnosis(int correctAnswerCount, int questionCount)
+    private static string GetDiagnosis(int correctAnswerCount, int questionCount)
     {
         double percentage = (double)correctAnswerCount / questionCount * 100;
 
@@ -90,42 +60,89 @@ internal class Program
         };
     }
 
-    private static bool AskPlayAgain()
+    private static (string question, int answer) GetNextQuestion(ref List<(string question, int answer)> quizData)
     {
-        while (true)
-        {
-            Console.WriteLine("Сыграем еще? (y/n)");
-            char input = char.ToLower(Console.ReadKey(true).KeyChar);
-            if (input == 'y') return true;
-            if (input == 'n') return false;
+        var firstElement = quizData[0];
+        quizData.RemoveAt(0);
 
+        return firstElement;
+    }
+
+    private static int GetUserAnswer(int questionNumber, string question)
+    {
+        int result;
+
+        string input = GetInputPrompt();
+        while (!int.TryParse(input, out result))
+        {
+            input = GetInputErrorPrompt();
+        }
+
+        return result;
+
+        string GetInputPrompt()
+        {
             Console.Clear();
-            Console.WriteLine("Нажмите 'y' чтобы играть, 'n' чтобы выйти");
+            Console.WriteLine($"Вопрос №{questionNumber}");
+            Console.WriteLine(question);
+            return Console.ReadLine()?.Trim();
+        }
+
+        string GetInputErrorPrompt()
+        {
+            Console.Clear();
+            Console.WriteLine($"Вопрос №{questionNumber}");
+            Console.WriteLine($"{question} (Пожалуйста, вводите только числа)");
+            return Console.ReadLine()?.Trim();
         }
     }
 
-    private static string AskUserName()
+    private static bool ShouldPlayAgain()
     {
-        Console.Clear();
-        Console.WriteLine("Как вас зовут?");
-
-        return Console.ReadLine().Trim();
-    }
-
-    private static List<int> GetAnswerList()
-    {
-        return new List<int> { 6, 9, 25, 60, 2 };
-    }
-
-    private static List<string> GetQuestionList()
-    {
-        return new List<string>
+        Console.WriteLine("Сыграем еще? (y/n)");
+        while (true)
         {
-            "Сколько будет два плюс два умноженное на два?",
-            "Бревно нужно распилить на 10 частей. Сколько распилов нужно сделать?",
-            "На двух руках 10 пальцев. Сколько пальцев на 5 руках?",
-            "Укол делают каждые полчаса. Сколько нужно минут, чтобы сделать три укола?",
-            "Пять свечей горело, две потухли. Сколько свечей осталось?"
+            char input = char.ToLower(Console.ReadKey(true).KeyChar);
+            if (input == 'y' || input == 'н') return true;
+            if (input == 'n' || input == 'т') return false;
+        }
+    }
+
+    private static string GetUserName()
+    {
+        string input = GetUserNamePrompt();
+        while (string.IsNullOrWhiteSpace(input))
+        {
+            input = GetUserNameErrorPrompt();
+        }
+
+        return input;
+
+        string GetUserNamePrompt()
+        {
+            Console.Clear();
+            Console.WriteLine("Как вас зовут?");
+            return Console.ReadLine()?.Trim();
+        }
+
+        string GetUserNameErrorPrompt()
+        {
+            Console.Clear();
+            Console.WriteLine("Как вас зовут? (Пожалуйста, введите имя)");
+            return Console.ReadLine()?.Trim();
+        }
+    }
+
+
+    private static List<(string question, int answer)> GetQuizData()
+    {
+        return new List<(string, int)>
+        {
+            ("Сколько будет два плюс два умноженное на два?", 6),
+            ("Бревно нужно распилить на 10 частей. Сколько распилов нужно сделать?", 9),
+            ("На двух руках 10 пальцев. Сколько пальцев на 5 руках?", 25),
+            ("Укол делают каждые полчаса. Сколько нужно минут, чтобы сделать три укола?", 60),
+            ("Пять свечей горело, две потухли. Сколько свечей осталось?", 2)
         };
     }
 }
