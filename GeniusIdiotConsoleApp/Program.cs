@@ -8,7 +8,7 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        string userName = GetUserName();
+        var userName = GetUserName();
         do
         {
             ExecuteQuiz(userName);
@@ -19,27 +19,27 @@ internal class Program
     {
         var quizData = GetQuizData();
         Random.Shared.Shuffle(CollectionsMarshal.AsSpan(quizData));
-        int questionCount = quizData.Count;
+        var questionCount = quizData.Count;
 
-        int correctAnswerCount = 0;
+        var correctAnswerCount = 0;
         for (int i = 0; i < questionCount; i++)
         {
-            var (question, answer) = GetNextQuestion(ref quizData);
+            var (question, answer) = quizData[i];
 
-            int userAnswer = GetUserAnswer(i + 1, question);
+            AskQuestion(i + 1, question);
+            var userAnswer = GetUserAnswer(i + 1, question);
             if (userAnswer == answer)
             {
                 correctAnswerCount++;
             }
         }
 
-        DisplayResults(correctAnswerCount, questionCount, userName);
+        var diagnosis = GetDiagnosis(correctAnswerCount, questionCount);
+        DisplayResults(correctAnswerCount, diagnosis, userName);
     }
 
-    private static void DisplayResults(int correctAnswerCount, int questionCount, string userName)
+    private static void DisplayResults(int correctAnswerCount, string diagnosis, string userName)
     {
-        string diagnosis = GetDiagnosis(correctAnswerCount, questionCount);
-
         Console.Clear();
         Console.WriteLine($"Количество правильных ответов: {correctAnswerCount}");
         Console.WriteLine($"{userName}, ваш диагноз: {diagnosis}");
@@ -47,7 +47,7 @@ internal class Program
 
     private static string GetDiagnosis(int correctAnswerCount, int questionCount)
     {
-        double percentage = (double)correctAnswerCount / questionCount * 100;
+        var percentage = (double)correctAnswerCount / questionCount * 100;
 
         return percentage switch
         {
@@ -60,19 +60,11 @@ internal class Program
         };
     }
 
-    private static (string question, int answer) GetNextQuestion(ref List<(string question, int answer)> quizData)
-    {
-        var firstElement = quizData[0];
-        quizData.RemoveAt(0);
-
-        return firstElement;
-    }
-
     private static int GetUserAnswer(int questionNumber, string question)
     {
         int result;
 
-        string input = GetInputPrompt();
+        var input = GetInputPrompt();
         while (!int.TryParse(input, out result))
         {
             input = GetInputErrorPrompt();
@@ -82,19 +74,22 @@ internal class Program
 
         string GetInputPrompt()
         {
-            Console.Clear();
-            Console.WriteLine($"Вопрос №{questionNumber}");
-            Console.WriteLine(question);
+            AskQuestion(questionNumber, question);
             return Console.ReadLine()?.Trim();
         }
 
         string GetInputErrorPrompt()
         {
-            Console.Clear();
-            Console.WriteLine($"Вопрос №{questionNumber}");
-            Console.WriteLine($"{question} (Пожалуйста, вводите только числа)");
+            AskQuestion(questionNumber, $"{question} (Пожалуйста, вводите только цифры)");
             return Console.ReadLine()?.Trim();
         }
+    }
+
+    private static void AskQuestion(int questionNumber, string question)
+    {
+        Console.Clear();
+        Console.WriteLine($"Вопрос №{questionNumber}");
+        Console.WriteLine(question);
     }
 
     private static bool ShouldPlayAgain()
@@ -102,7 +97,7 @@ internal class Program
         Console.WriteLine("Сыграем еще? (y/n)");
         while (true)
         {
-            char input = char.ToLower(Console.ReadKey(true).KeyChar);
+            var input = char.ToLower(Console.ReadKey(true).KeyChar);
             if (input == 'y' || input == 'н') return true;
             if (input == 'n' || input == 'т') return false;
         }
@@ -110,7 +105,7 @@ internal class Program
 
     private static string GetUserName()
     {
-        string input = GetUserNamePrompt();
+        var input = GetUserNamePrompt();
         while (string.IsNullOrWhiteSpace(input))
         {
             input = GetUserNameErrorPrompt();
