@@ -128,7 +128,6 @@ internal class Program
         }
     }
 
-
     private static List<(string question, int answer)> GetQuizData()
     {
         return new List<(string, int)>
