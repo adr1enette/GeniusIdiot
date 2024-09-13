@@ -26,7 +26,6 @@ internal class Program
         {
             var (question, answer) = quizData[i];
 
-            AskQuestion(i + 1, question);
             var userAnswer = GetUserAnswer(i + 1, question);
             if (userAnswer == answer)
             {
@@ -74,22 +73,19 @@ internal class Program
 
         string GetInputPrompt()
         {
-            AskQuestion(questionNumber, question);
+            Console.Clear();
+            Console.WriteLine($"Вопрос №{questionNumber}");
+            Console.WriteLine(question);
             return Console.ReadLine()?.Trim();
         }
 
         string GetInputErrorPrompt()
         {
-            AskQuestion(questionNumber, $"{question} (Пожалуйста, вводите только цифры)");
+            Console.Clear();
+            Console.WriteLine($"Вопрос №{questionNumber}");
+            Console.WriteLine($"{question} (Пожалуйста, вводите только цифры)");
             return Console.ReadLine()?.Trim();
         }
-    }
-
-    private static void AskQuestion(int questionNumber, string question)
-    {
-        Console.Clear();
-        Console.WriteLine($"Вопрос №{questionNumber}");
-        Console.WriteLine(question);
     }
 
     private static bool ShouldPlayAgain()
